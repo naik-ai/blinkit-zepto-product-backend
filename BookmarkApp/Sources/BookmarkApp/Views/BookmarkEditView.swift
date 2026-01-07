@@ -253,83 +253,8 @@ public struct BookmarkEditView: View {
     }
 }
 
-// MARK: - Tag Chip
-
-private struct TagChip: View {
-    let title: String
-    let isRemovable: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 4) {
-                Text(title)
-                if isRemovable {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.caption)
-                }
-            }
-            .font(.caption)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(isRemovable ? Color.accentColor : Color.secondary.opacity(0.2))
-            .foregroundStyle(isRemovable ? .white : .primary)
-            .clipShape(Capsule())
-        }
-        .buttonStyle(.plain)
-    }
-}
-
-// MARK: - Flow Layout
-
-private struct FlowLayout: Layout {
-    var spacing: CGFloat = 8
-
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let result = flowLayout(proposal: proposal, subviews: subviews)
-        return result.size
-    }
-
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
-        let result = flowLayout(proposal: proposal, subviews: subviews)
-        for (index, position) in result.positions.enumerated() {
-            subviews[index].place(
-                at: CGPoint(x: bounds.minX + position.x, y: bounds.minY + position.y),
-                proposal: .unspecified
-            )
-        }
-    }
-
-    private func flowLayout(proposal: ProposedViewSize, subviews: Subviews) -> (size: CGSize, positions: [CGPoint]) {
-        let maxWidth = proposal.width ?? .infinity
-        var positions: [CGPoint] = []
-        var currentX: CGFloat = 0
-        var currentY: CGFloat = 0
-        var lineHeight: CGFloat = 0
-        var totalHeight: CGFloat = 0
-        var totalWidth: CGFloat = 0
-
-        for subview in subviews {
-            let size = subview.sizeThatFits(.unspecified)
-
-            if currentX + size.width > maxWidth && currentX > 0 {
-                currentX = 0
-                currentY += lineHeight + spacing
-                lineHeight = 0
-            }
-
-            positions.append(CGPoint(x: currentX, y: currentY))
-            lineHeight = max(lineHeight, size.height)
-            currentX += size.width + spacing
-            totalWidth = max(totalWidth, currentX - spacing)
-            totalHeight = currentY + lineHeight
-        }
-
-        return (CGSize(width: totalWidth, height: totalHeight), positions)
-    }
-}
-
 // MARK: - Preview
+// Note: Uses shared FlowLayout and TagChip from Components/FlowLayout.swift
 
 #Preview("Add") {
     NavigationStack {
